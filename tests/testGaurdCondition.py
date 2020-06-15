@@ -34,7 +34,7 @@ class GaurdConditionTest(unittest.TestCase):
     def testInitGaurdCond(self):
         gc = GaurdCondition(self.dp)
 
-        self.assertIsNotNone(gc, "Gaurd condition is not initialized correctly")
+        self.assertIsNotNone(gcond, "Gaurd condition is not initialized correctly")
         self.assertIsInstance(gc, GaurdCondition, "Created gaurd condition is not of the good type")
 
     def testSetGuardCond(self):
@@ -66,7 +66,7 @@ class GaurdConditionTest(unittest.TestCase):
         rt = gc.set_guard_condition(False)
         self.assertTrue(rt, "set_gaurdcondition did not return the expected result")
 
-        triggered = gc.read_trigger()
+        triggered = gcond.read_trigger()
 
         self.assertIsNotNone(triggered, " read guard condition did not get expected object")
         self.assertFalse(triggered, "Read gaurdCondition did not return expected value")
