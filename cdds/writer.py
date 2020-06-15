@@ -39,13 +39,20 @@ class Writer (Entity):
         self.parent = pub
         self.topic = topic
         self.keygen = self.topic.gen_key
-        qos = self.rt.to_rw_qos(ps)
         
+
+        qos = self.rt.to_rw_qos(ps)
         self._qos = qos
         if writer_listener is not None:
             if getattr(writer_listener, "on_publication_matched", None) and callable(writer_listener.on_publication_matched):
                 self.publicatoin_listener = writer_listener.on_publication_matched
             else:
+                self.publicatoin_listener = do_nothing
+                
+            if getattr(writer_listener, "on_liveliness_lost", None) and callable(writer_listener.on_liveliness_lost):
+                self.liveliness_listener = writer_listener.on_liveliness_lost
+            else:
+                self.liveliness_listener = do_nothing
                 self.publicatoin_listener = do_nothing
                 
             if getattr(writer_listener, "on_liveliness_lost", None) and callable(writer_listener.on_liveliness_lost):
@@ -82,9 +89,10 @@ class Writer (Entity):
         self.handle = self.rt.ddslib.dds_create_writer(pub.handle, topic.handle, self.qos, self.listener_handle)
         if self.handle < 0:
             print ("failed to create reader {0}".format(self.handle))
+
+            if getattr(writer_listener, "on_offered_deadline_missed", None) and callable(writer_listener.on_offered_deadline_missed):
         assert (self.handle > 0)
 
-        
         self.dispatcher.register_publication_matched_listener(self.handle, self.__handle_pub_matched)
         self.dispatcher.register_liveliness_lost_listener(self.handle, self.__handle_liveliness_lost)
         self.dispatcher.register_offered_deadline_missed_listener(self.handle, self.__handle_missed_deadline)
@@ -118,19 +126,19 @@ class Writer (Entity):
         self.publicatoin_listener = fun
         self.dispatcher.register_publication_matched_listener(self.handle, self.__handle_pub_matched)
                         
-    
+
     def on_offered_deadline_missed(self, fun):
         self.deadline_listener = fun
         self.dispatcher.register_offered_deadline_missed_listener(self.handle, self.__handle_missed_deadline)
-     
+
     def on_incompatible_qos (self, fun):
         self.incompatible_qos_listener = fun
         self.dispatcher.register_offered_incompatible_qos_listener(self.handle, self.__handle_incompatible_qos)
-         
+
     def on_liveliness_lost(self, fun):
         self.liveliness_listener = fun
         self.dispatcher.register_liveliness_lost_listener(self.handle, fun)
-    
+
     def __handle_pub_matched(self, r, s):
         self.publicatoin_listener(self, s)
         
