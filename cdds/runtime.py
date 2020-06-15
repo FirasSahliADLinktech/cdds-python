@@ -239,7 +239,7 @@ class Runtime:
         
         self.ddslib.dds_lset_data_on_readers.restype = None
         self.ddslib.dds_lset_data_on_readers.argtypes = [dds_listener_p_t, DATA_ON_READERS_PROTO]
-        
+
         self.ddslib.dds_lset_inconsistent_topic.restype = None
         self.ddslib.dds_lset_inconsistent_topic.argstypes = [dds_listener_p_t, INCONSISTENT_TOPIC_PROTO]
 
@@ -325,6 +325,7 @@ class Runtime:
                 self.ddslib.dds_qset_deadline(qos, p.deadline) 
             elif p.id == DDS_RESOURCELIMITS_QOS_POLICY_ID:
                 self.ddslib.dds_qset_resource_limits (qos, p.max_samples, p.max_instances, p.max_samples_per_instance);
+                
                 
         return qos
 
