@@ -88,10 +88,10 @@ class Topic(Entity):
         self.inconsistent_topic_handler = fun
         print ("topic on_inconsistent_topic")
         self.dispatcher.register_on_inconsistent_topic_listener(self.handle, self.__handle_inconsistent_topic)
-        
+
     def __handle_inconsistent_topic(self, r, s):
         self.inconsistent_topic_handler(self, s)
-        
+
     @property
     def name(self):
         return self._name.decode()
