@@ -156,13 +156,15 @@ DDS_LIVELINESS_MANUAL_BY_TOPIC = 2
 DDS_DESTINATIONORDER_BY_RECEPTION_TIMESTAMP = 0
 DDS_DESTINATIONORDER_BY_SOURCE_TIMESTAMP = 1
 
-LENGTH_UNLIMITED = -1
 
+DDS_PRESENTATION_INSTANCE = 0
+DDS_PRESENTATION_TOPIC = 1
+DDS_PRESENTATION_GROUP = 2
+
+LENGTH_UNLIMITED = -1
 
 def dds_infinity():
     return 1e20
-
-
 def dds_secs(n):
     return n * 1000000000
 
@@ -172,11 +174,12 @@ def dds_millis(n):
 
 
 def dds_micros(n):
-    return n * 1000
+    return n*1000
 
 
 def dds_nanos(n):
     return n
+
 
 #
 # DDS Sample Info
@@ -217,7 +220,7 @@ class SampleInfo(Structure):
 dds_entity_t = c_int32
 dds_time_t = c_int64
 dds_duration_t = c_int64
-dds_instance_handle_t = c_uint64
+dds_instance_handle_t = c_int64
 dds_domainid_t = c_uint32
 dds_sample_state_t = c_int
 dds_view_state_t = c_int
@@ -237,6 +240,8 @@ SUBSCRIPTION_MATCHED_PROTO = CFUNCTYPE(None, c_void_p, c_void_p, c_void_p)
 SAMPLE_LOST_PROTO = CFUNCTYPE(None, c_void_p, c_void_p, c_void_p)
 
 
+
+
 # There are actually used to check the the listener are actually working...
 
 def trivial_on_requested_deadline_missed(r, s):
@@ -252,6 +257,7 @@ def trivial_on_requested_incompatible_qos(r, s):
 def trivial_on_sample_rejected(r, s):
     global logger
     logger.debug('DefaultListener', '>> Sample Rejected')
+
 
 
 class DDSValue(Structure):
@@ -275,7 +281,6 @@ class DDSSequence(Structure):
 #
 # Built-in key-value type
 #
-
 
 class DDSKeyBValue(Structure):
     _fields_ = [('key', c_char_p),
