@@ -385,7 +385,7 @@ class Deadline (Policy):
         Policy.__init__(self, DDS_DEADLINE_QOS_POLICY_ID, deadline )
         self.deadline = deadline
         
-
+        
 class Partition(Policy):
     def __init__(self, ps):
         Policy.__init__(self, DDS_PARTITION_QOS_POLICY_ID, None)
