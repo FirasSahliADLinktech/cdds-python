@@ -1,6 +1,7 @@
 __author__ = 'Angelo Corsaro'
 
 from .runtime import Runtime
+from .logger import *
 from .policy import *
 from .dispatcher import *
 from .listener import *
