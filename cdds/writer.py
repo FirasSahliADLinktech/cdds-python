@@ -38,6 +38,7 @@ class Writer (Entity):
         self.participant = pub.participant
         self.parent = pub
         self.topic = topic
+        self.logger = DDSLogger ('globalLog.txt', DDS_LC.LC_ALL)
         self.keygen = self.topic.gen_key
         
 
@@ -88,7 +89,10 @@ class Writer (Entity):
             
         self.handle = self.rt.ddslib.dds_create_writer(pub.handle, topic.handle, self.qos, self.listener_handle)
         if self.handle < 0:
+            self.logger.error(self, 'Error creating a writer')
             print ("failed to create reader {0}".format(self.handle))
+        else:
+            self.logger.error(self, 'Success creating a writer')
 
             if getattr(writer_listener, "on_offered_deadline_missed", None) and callable(writer_listener.on_offered_deadline_missed):
         assert (self.handle > 0)
