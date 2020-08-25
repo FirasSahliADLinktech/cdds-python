@@ -35,6 +35,7 @@ else:
     bit_lib = 'libddstubs' + get_lib_ext()
     cham_lib_path = get_user_lib_path() + os.sep + cham_lib
     bit_lib_path = get_user_lib_path() + os.sep + bit_lib
+    helloworld_lib_path = get_user_bit_lib_path() + os.sep + helloworld_lib
 
 # Limits and Constants
 MAX_SAMPLES = 256
