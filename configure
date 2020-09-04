@@ -1,14 +1,18 @@
 # -*-Makefile-*-
 #!/bin/bash
 
+set -ev
 
 if [ "$(uname)" == "Darwin" ]; then
-    BIT_LIB=libddstubs.dylib
-elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
-    BIT_LIB=libddstubs.so
+    STUB_LIB=libddstubs.dylib
+    BIT_LIB=libddsbit.dylib
+    HELLO_LIB=libddshelloworld.dylib
+elif [ "$(uname -s)" == "Linux" ]; then
+    STUB_LIB=libddstubs.so
+    BIT_LIB=libddsbit.so
+    HELLO_LIB=libddshelloworld.so
 fi
 
-pushd &> /dev/null
 cd bit
 rm -Rf build
 mkdir build
@@ -16,9 +20,12 @@ cd build
 cmake ..
 make
 if [ "$(uname)" == "Darwin" ]; then
+    cp ${STUB_LIB} /usr/local/lib
     cp ${BIT_LIB} /usr/local/lib
-elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
+    cp ${HELLO_LIB} /usr/local/lib
+elif [ "$(uname -s)" == "Linux" ]; then
+    sudo cp ${STUB_LIB} /usr/local/lib
     sudo cp ${BIT_LIB} /usr/local/lib
+    sudo cp ${HELLO_LIB} /usr/local/lib
 fi
 
-popd &> /dev/null
