@@ -116,7 +116,7 @@ def not_alive_instance_samples():
 
 
 class Reader (Entity):
-    def __init__(self, sub, topic, ps=None, data_listener=None):
+    def __init__(self, sub, topic, ps=None,  readerListener=None):
         self.rt = Runtime.get_runtime()
         self.participant = sub.participant
         self.parent = sub
