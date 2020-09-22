@@ -4,33 +4,39 @@ import jsonpickle
 
 from cdds import *
 
+
 class PublicationMatchedStatus(Structure):
-    _fields_=[("total_count", c_uint32 ) ,
-              ("total_count_change", c_int32 ),
-              ("current_count", c_uint32) ,
-              ("current_count_change", c_int32) ,
-              ("last_subscription_handle", c_uint64)
-            ]
-    
+    _fields_ = [("total_count", c_uint32),
+                ("total_count_change", c_int32),
+                ("current_count", c_uint32),
+                ("current_count_change", c_int32),
+                ("last_subscription_handle", c_uint64)
+                ]
+
+
 class LivelinessLostStatus(Structure):
-    _fields_=[("total_count", c_uint32 ) ,
-              ("total_count_change", c_int32) 
-            ]
-    
+    _fields_ = [("total_count", c_uint32),
+                ("total_count_change", c_int32)
+                ]
+
+
 class OfferedIncompatibleQosStatus(Structure):
-    _fields_ =[("total_count", c_uint32 ) ,
-              ("total_count_change", c_int32 ),
-              ("last_policy_id", c_uint32)
-            ]
-    
+    _fields_ = [("total_count", c_uint32),
+                ("total_count_change", c_int32),
+                ("last_policy_id", c_uint32)
+                ]
+
+
 class OfferedDeadlineMissedStatus(Structure):
-    _fields_=[("total_count", c_uint32 ) ,
-              ("total_count_change", c_int32),
-              ("last_instance_handle", c_uint64)
-            ]
+    _fields_ = [("total_count", c_uint32),
+                ("total_count_change", c_int32),
+                ("last_instance_handle", c_uint64)
+                ]
+
 
 def do_nothing(a, *args):
     return a
+
 
 class Writer (Entity):
     def __init__(self, pub, topic, ps = None, writer_listener = None):
@@ -40,20 +46,13 @@ class Writer (Entity):
         self.topic = topic
         self.logger = DDSLogger ('globalLog.txt', DDS_LC.LC_ALL)
         self.keygen = self.topic.gen_key
-        
-
         qos = self.rt.to_rw_qos(ps)
+        
         self._qos = qos
         if writer_listener is not None:
             if getattr(writer_listener, "on_publication_matched", None) and callable(writer_listener.on_publication_matched):
                 self.publicatoin_listener = writer_listener.on_publication_matched
             else:
-                self.publicatoin_listener = do_nothing
-                
-            if getattr(writer_listener, "on_liveliness_lost", None) and callable(writer_listener.on_liveliness_lost):
-                self.liveliness_listener = writer_listener.on_liveliness_lost
-            else:
-                self.liveliness_listener = do_nothing
                 self.publicatoin_listener = do_nothing
                 
             if getattr(writer_listener, "on_liveliness_lost", None) and callable(writer_listener.on_liveliness_lost):
@@ -88,14 +87,13 @@ class Writer (Entity):
         self.rt.ddslib.dds_lset_offered_incompatible_qos(self.listener_handle, self.dispatcher.dispatch_on_offered_incompatable_qos)
             
         self.handle = self.rt.ddslib.dds_create_writer(pub.handle, topic.handle, self.qos, self.listener_handle)
+
+        self.handle = self.rt.ddslib.dds_create_writer(pub.handle, topic.handle, self.qos, self.listener_handle)
         if self.handle < 0:
             self.logger.error(self, 'Error creating a writer')
             print ("failed to create reader {0}".format(self.handle))
         else:
             self.logger.error(self, 'Success creating a writer')
-
-            if getattr(writer_listener, "on_offered_deadline_missed", None) and callable(writer_listener.on_offered_deadline_missed):
-        assert (self.handle > 0)
 
         self.dispatcher.register_publication_matched_listener(self.handle, self.__handle_pub_matched)
         self.dispatcher.register_liveliness_lost_listener(self.handle, self.__handle_liveliness_lost)
@@ -129,13 +127,12 @@ class Writer (Entity):
     def on_publication_matched(self, fun):
         self.publicatoin_listener = fun
         self.dispatcher.register_publication_matched_listener(self.handle, self.__handle_pub_matched)
-                        
 
     def on_offered_deadline_missed(self, fun):
         self.deadline_listener = fun
         self.dispatcher.register_offered_deadline_missed_listener(self.handle, self.__handle_missed_deadline)
 
-    def on_incompatible_qos (self, fun):
+    def on_incompatible_qos(self, fun):
         self.incompatible_qos_listener = fun
         self.dispatcher.register_offered_incompatible_qos_listener(self.handle, self.__handle_incompatible_qos)
 
@@ -145,17 +142,16 @@ class Writer (Entity):
 
     def __handle_pub_matched(self, r, s):
         self.publicatoin_listener(self, s)
-        
+
     def __handle_missed_deadline(self, r, s):
         self.offered_deadline_missed_listener(self, s)
-         
-     
+
     def __handle_liveliness_lost(self, r, s):
         self.liveliness_listener(self, s)
-        
+
     def __handle_incompatible_qos(self, r, s):
         self.incompatible_qos_listener(self, s)
-    
+
     def lookup_instance(self, s):
         gk = self.keygen(s)
         kh = KeyHolder(gk)
@@ -219,9 +215,9 @@ class Writer (Entity):
         :rtype: PublicationMatchedStatus
         '''
         self._check_handle()
-        
+
         publicationMatched_status = PublicationMatchedStatus(0, 0, 0, 0, 0)
-        
+
         ret = self.rt.ddslib.dds_get_publication_matched_status(self.handle, byref(publicationMatched_status))
         if ret < 0:
             raise DDSException('Failure retrieving publication_matched_status', ret)
@@ -231,22 +227,22 @@ class Writer (Entity):
             publicationMatched_status.current_count,
             publicationMatched_status.current_count_change,
             publicationMatched_status.last_subscription_handle)
-        
+
         return status
-    
+
     def liveliness_lost_status(self):
-        
+
         self._check_handle()
-        
+
         livelinessLost_status = LivelinessLostStatus(0, 0)
-        
+
         ret = self.rt.ddslib.dds_get_liveliness_changed_status(self.handle, byref(livelinessLost_status))
         if ret < 0:
             raise DDSException('Failure retrieving LIVELINESS lost status', ret)
         status = LivelinessLostStatus(
             livelinessChanged_status.total_count,
             livelinessChanged_status.total_count_change)
-        
+
     def offered_incompatible_qos_status(self):
         '''
         Return the OfferedIncompatibleQosStatus of the reader
@@ -259,7 +255,7 @@ class Writer (Entity):
         :returns: dds.RequestedIncompatibleQosStatus
         '''
         self._check_handle()
-        offered_qos_status = OfferedIncompatibleQosStatus(0,0,0) 
+        offered_qos_status = OfferedIncompatibleQosStatus(0, 0, 0)
         ret = self.rt.ddslib.dds_get_offered_incompatible_qos_status(self.handle, byref(incompatable_qos_status))
         if ret < 0:
             raise DDSException('Failure retrieving requested_incompatible_qos_status', ret)
@@ -268,7 +264,7 @@ class Writer (Entity):
             offered_qos_status.total_count_change,
             offered_qos_status.last_policy_id)
         return status
-    
+
     def offered_deadline_missed_status(self):
         '''
         Return the OfferedDeadlineMissedStatus of the reader
